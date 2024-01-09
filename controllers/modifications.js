@@ -72,10 +72,5 @@ const adminController = {
   }
 };
 
-// Define routes for the admin controller
-router.post('/change-status', adminController.changePlotStatus);
-router.post('/add-remark', adminController.addPlotRemark);
-router.post('/modify-details', adminController.modifyPlotDetails);
 
-// Export the router
-module.exports = router;
+module.exports = {adminController,changePlotStatus,addPlotRemark,modifyPlotDetails};
