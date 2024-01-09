@@ -1,81 +1,118 @@
-// Import necessary modules and models
-const express = require('express');
-const router = express.Router();
-const PlotDetail = require('../models/plotdetail'); 
+const PlotDetail = require("../models/Plotdetail"); // Replace with the actual model
 
-// Controller for Admin operations
-const adminController = {
-  // Change the status of the plot
-  changePlotStatus: async (req, res) => {
-    const { plotNo, newStatus } = req.body;
-
-    try {
-      const updatedPlot = await PlotDetail.findOneAndUpdate(
-        { plot_no: plotNo },
-        { status: newStatus },
-        { new: true }
-      );
-
-      if (updatedPlot) {
-        return res.json({ success: true, message: 'Plot status updated successfully', data: updatedPlot });
-      } else {
-        return res.status(404).json({ success: false, message: 'Plot not found' });
-      }
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+const createPlotDetail = async (req, res) => {
+  try {
+    const plotNoExists = await PlotDetail.findOne({ plot_no: req.body.plot_no });
+    if (plotNoExists) {
+      return res.status(200).json({
+        isOk: false,
+        field: 1,
+        message: "Plot number already exists!",
+      });
     }
-  },
 
-  // Add remarks to a plot
-  addPlotRemark: async (req, res) => {
-    const { plotNo, newRemark } = req.body;
-
-    try {
-      const updatedPlot = await PlotDetail.findOneAndUpdate(
-        { plot_no: plotNo },
-        { $push: { remark: newRemark } },
-        { new: true }
-      );
-
-      if (updatedPlot) {
-        return res.json({ success: true, message: 'Remark added successfully', data: updatedPlot });
-      } else {
-        return res.status(404).json({ success: false, message: 'Plot not found' });
-      }
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
-    }
-  },
-
-  // Modify plot details
-  modifyPlotDetails: async (req, res) => {
-    const { plotNo, newPlotDetails } = req.body;
-
-    try {
-      const updatedPlot = await PlotDetail.findOneAndUpdate(
-        { plot_no: plotNo },
-        { $set: newPlotDetails },
-        { new: true }
-      );
-
-      if (updatedPlot) {
-        return res.json({ success: true, message: 'Plot details updated successfully', data: updatedPlot });
-      } else {
-        return res.status(404).json({ success: false, message: 'Plot not found' });
-      }
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ success: false, message: 'Internal Server Error' });
-    }
+    const plotDetail = await PlotDetail.create(req.body);
+    res.status(200).json({
+      isOk: true,
+      data: plotDetail,
+    });
+  } catch (error) {
+    console.error("Error from create plot detail", error);
+    return res.status(400).send("Create plot detail failed");
   }
 };
 
-// Define routes for the admin controller
-router.post('/change-status', adminController.changePlotStatus);
-router.post('/add-remark', adminController.addPlotRemark);
-router.post('/modify-details', adminController.modifyPlotDetails);
+const getPlotDetailById = async (req, res) => {
+  try {
+    const plotDetail = await PlotDetail.findOne({ _id: req.params._id }).exec();
+    res.json(plotDetail);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server Error.",
+      success: false,
+    });
+  }
+};
 
-// Export the router
-module.exports = router;
+const getActivePlots = async (req, res) => {
+  try {
+    const activePlots = await PlotDetail.find({ status: "active" }).exec();
+    res.json(activePlots);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Failed to fetch active plots",
+      success: false,
+    });
+  }
+};
+
+const getPlotDetails = async (req, res) => {
+  try {
+    const plotDetails = await PlotDetail.find().exec();
+    res.json(plotDetails);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Failed to fetch plot details",
+      success: false,
+    });
+  }
+};
+
+const updatePlotDetail = async (req, res) => {
+  try {
+    const updatedPlotDetail = await PlotDetail.findByIdAndUpdate(
+      req.params._id,
+      req.body,
+      { new: true }
+    );
+    
+    if (!updatedPlotDetail) {
+      return res.status(404).json({ error: "Plot detail not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Plot detail updated!",
+      updatedPlotDetail,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server Error.",
+      success: false,
+    });
+  }
+};
+
+const deletePlotDetail = async (req, res) => {
+  try {
+    const deletedPlotDetail = await PlotDetail.findByIdAndDelete(req.params._id);
+    
+    if (!deletedPlotDetail) {
+      return res.status(404).json({ success: false, message: "Plot detail not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Plot detail deleted!",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Can not delete plot detail!",
+      success: false,
+    });
+  }
+};
+
+module.exports = {
+  createPlotDetail,
+  getPlotDetails,
+  getPlotDetailById,
+  updatePlotDetail,
+  deletePlotDetail,
+  getActivePlots,
+};
