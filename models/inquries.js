@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const Inquries = new mongoose.Schema(
+const SuncityInquries = new mongoose.Schema(
   {
     InquiryName: {
       type: String,
@@ -19,4 +19,4 @@ const Inquries = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("ContactUs", Inquries);
+module.exports = mongoose.model("ContactUs", SuncityInquries);

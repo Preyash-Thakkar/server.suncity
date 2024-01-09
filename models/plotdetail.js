@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const plotdetails = new mongoose.Schema(
+const Suncityplotdetails = new mongoose.Schema(
 {
     plot_no: {
       type: String,
@@ -31,4 +31,4 @@ const plotdetails = new mongoose.Schema(
       required: true
     },
 });
-  module.exports = mongoose.model("plotdetails",plotdetails );
+  module.exports = mongoose.model("plotdetails",Suncityplotdetails );
