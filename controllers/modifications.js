@@ -1,4 +1,4 @@
-const PlotDetail = require("../models/Plotdetail"); // Replace with the actual model
+const PlotDetail = require("../models/plotdetail"); // Replace with the actual model
 
 const createPlotDetail = async (req, res) => {
   try {

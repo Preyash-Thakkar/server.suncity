@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const PlotDetail = require("../models/Plotdetail"); 
+const PlotDetail = require("../models/plotdetail"); 
 
 // Controller for Stakeholder operations
 const stakeholderController = {
