@@ -6,7 +6,7 @@ const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 const { throws } = require("assert");
-const autoIncrement = require("mongoose-auto-increment");
+//const autoIncrement = require("mongoose-auto-increment");
 // const XMLHttpRequest =  require('xhr2');
 // var httpRequest = new XMLHttpRequest();
 // const cookieParser = require("cookie-parser");
@@ -14,7 +14,7 @@ require("dotenv").config();
 const url = process.env.API_URL;
 const cron = require("node-cron");
 const axios = require("axios");
-var NodeCronJob = require("./nodeCron/NodeIndex");
+//var NodeCronJob = require("./nodeCron/NodeIndex");
 global.__basedir = __dirname;
 
 const app = express();
@@ -28,7 +28,7 @@ mongoose
   .connect(process.env.DATABASE, { useNewUrlParser: true })
   .then(() => {
     databasestatus = "DB connected";
-    NodeCronJob.LoadCronJobs();
+    //NodeCronJob.LoadCronJobs();
     console.log("DB connected");
   })
   .catch((err) => {
@@ -36,7 +36,7 @@ mongoose
     console.log("DB Error => ", err);
   });
 
-autoIncrement.initialize(mongoose.connection);
+//autoIncrement.initialize(mongoose.connection);
 
 //middlewares
 app.use(morgan("dev"));
