@@ -87,10 +87,5 @@ const updatePlotDetail = async (req, res) => {
   }
 };
 
-// Define routes for the admin controller
-router.post('/change-status', adminController.changePlotStatus);
-router.post('/add-remark', adminController.addPlotRemark);
-router.post('/modify-details', adminController.modifyPlotDetails);
-
 // Export the router
-module.exports = router;
+module.exports = {createPlotDetail,getPlotDetailById,getActivePlots,getPlotDetails,updatePlotDetail};
