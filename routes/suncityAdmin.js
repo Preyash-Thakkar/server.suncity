@@ -2,8 +2,9 @@ const express = require("express");
 
 const router = express.Router();
 
-const {stakeholderController} = require("../controllers/stakeholderremarks")
+const {createAdmin,getAllAdmins} = require("../controllers/suncityAdmin")
 
-router.post('/add-remark', stakeholderController.addPlotRemark);
+router.post('/admin/create', createAdmin);
+router.get('/admin/all', getAllAdmins);
 
 module.exports = router;
