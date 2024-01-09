@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 
 const LoginHistorySchema = new mongoose.Schema(
   { 
-    WhoLogin: {          //company users id
+    Login: {          //company users id
       type: String,
       required: true,
     },
-    WhoLoginName: {
+    LoginName: {
       type: String,
       required: true,
     },
@@ -22,4 +22,4 @@ const LoginHistorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("MediaOwnerLoginHistory", LoginHistorySchema);
+module.exports = mongoose.model("LoginHistory", LoginHistorySchema);
