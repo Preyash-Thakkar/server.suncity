@@ -87,32 +87,10 @@ const updatePlotDetail = async (req, res) => {
   }
 };
 
-const deletePlotDetail = async (req, res) => {
-  try {
-    const deletedPlotDetail = await PlotDetail.findByIdAndDelete(req.params._id);
-    
-    if (!deletedPlotDetail) {
-      return res.status(404).json({ success: false, message: "Plot detail not found" });
-    }
+// Define routes for the admin controller
+router.post('/change-status', adminController.changePlotStatus);
+router.post('/add-remark', adminController.addPlotRemark);
+router.post('/modify-details', adminController.modifyPlotDetails);
 
-    res.status(200).json({
-      success: true,
-      message: "Plot detail deleted!",
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      message: "Can not delete plot detail!",
-      success: false,
-    });
-  }
-};
-
-module.exports = {
-  createPlotDetail,
-  getPlotDetails,
-  getPlotDetailById,
-  updatePlotDetail,
-  deletePlotDetail,
-  getActivePlots,
-};
+// Export the router
+module.exports = router;
