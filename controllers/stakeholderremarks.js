@@ -1,7 +1,7 @@
 // Import necessary modules and models
 const express = require('express');
 const router = express.Router();
-const PlotDetail = require('../models/plotdetail'); 
+const PlotDetail = require("../models/Plotdetail"); 
 
 // Controller for Stakeholder operations
 const stakeholderController = {
