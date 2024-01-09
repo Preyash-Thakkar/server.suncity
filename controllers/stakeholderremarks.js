@@ -28,8 +28,4 @@ const stakeholderController = {
   },
 };
 
-// Define routes for the stakeholder controller
-router.post('/add-remark', stakeholderController.addPlotRemark);
-
-// Export the router
-module.exports = router;
+module.exports = {stakeholderController};
