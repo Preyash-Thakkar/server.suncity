@@ -3,32 +3,30 @@ const mongoose = require("mongoose");
 const Suncityplotdetails = new mongoose.Schema({
   plot_no: {
     type: String,
-    required: true,
+    //required: true,
     unique: true
   },
   status: {
     type: String,
     enum: ['available', 'sold', 'reserved', 'active'],
-    required: true
+    //required: true
   },
-  dimensions: {
-    length: {
-      type: Number,
-      required: true
-    },
-    width: {
-      type: Number,
-      required: true
-    }
+  length: {
+    type: Number,
+    //required: true
+  },
+  width: {
+    type: Number,
+   // required: true
   },
   area: {
     type: Number,
-    required: true
+    //required: true
   },
   price: {
     type: Number,
-    required: true
+   // required: true
   },
 });
 
-module.exports = mongoose.model("plotdetails", Suncityplotdetails);
+module.exports = mongoose.model("Suncityplotdetails", Suncityplotdetails);

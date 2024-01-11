@@ -1,4 +1,4 @@
-const PlotDetail = require("../models/plotdetail"); // Replace with the actual model
+const plotdetail = require("../models/plotdetail");
 
 const createPlotDetail = async (req, res) => {
   try {
@@ -21,6 +21,96 @@ const createPlotDetail = async (req, res) => {
     return res.status(400).send("Create plot detail failed");
   }
 };
+
+const listPlotDetails = async (req, res) => {
+  try {
+    const { skip, per_page, sorton, sortdir, match, isActive } = req.body;
+
+    console.log("Sorting on:", sorton);
+
+    let query = [
+      {
+        $match: { status: isActive },
+      },
+      {
+        $facet: {
+          stage1: [
+            {
+              $group: {
+                _id: null,
+                count: {
+                  $sum: 1,
+                },
+                data: {
+                  $push: {
+                    plot_no: "$plot_no",
+                    status: "$status",
+                    length: "$length",
+                    width: "$width",
+                    area: "$area",
+                    price: "$price",
+                  },
+                },
+              },
+            },
+          ],
+          stage2: [
+            {
+              $skip: skip,
+            },
+            {
+              $limit: per_page,
+            },
+          ],
+        },
+      },
+      {
+        $unwind: {
+          path: "$stage1",
+        },
+      },
+      {
+        $project: {
+          count: "$stage1.count",
+          data: { $concatArrays: ["$stage1.data", "$stage2"] },
+        },
+      },
+    ];
+
+    if (match) {
+      query = [
+        {
+          $match: {
+            $or: [
+              { plot_no: { $regex: match, $options: "i" } },
+              { status: { $regex: match, $options: "i" } },
+            ],
+          },
+        },
+      ].concat(query);
+    }
+
+    // Sort part
+    if (sorton && sortdir) {
+      const sort = {};
+      sort[sorton] = sortdir === "desc" ? -1 : 1;
+      query = [{ $sort: sort }].concat(query);
+    } else {
+      const sort = { plot_no: 1 }; // Update with your desired sort field
+      query = [{ $sort: sort }].concat(query);
+    }
+
+    console.log("Final query:", JSON.stringify(query));
+
+    const list = await plotdetail.aggregate(query);
+    res.json(list);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
 
 const getPlotDetailById = async (req, res) => {
   try {
@@ -88,4 +178,4 @@ const updatePlotDetail = async (req, res) => {
 };
 
 // Export the router
-module.exports = {createPlotDetail,getPlotDetailById,getActivePlots,getPlotDetails,updatePlotDetail};
+module.exports = {createPlotDetail,getPlotDetailById,getActivePlots,getPlotDetails,updatePlotDetail,listPlotDetails};
