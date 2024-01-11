@@ -1,4 +1,4 @@
-const plotdetail = require("../models/plotdetail");
+const PlotDetail = require("../models/plotdetail");
 
 const createPlotDetail = async (req, res) => {
   try {
@@ -14,7 +14,7 @@ const createPlotDetail = async (req, res) => {
     const plotDetail = await PlotDetail.create(req.body);
     res.status(200).json({
       isOk: true,
-      data: plotDetail,
+      data: plotDetail, // Include the created plot detail in the 'data' property
     });
   } catch (error) {
     console.error("Error from create plot detail", error);
@@ -22,91 +22,40 @@ const createPlotDetail = async (req, res) => {
   }
 };
 
+
 const listPlotDetails = async (req, res) => {
   try {
     const { skip, per_page, sorton, sortdir, match, isActive } = req.body;
 
-    console.log("Sorting on:", sorton);
-
-    let query = [
-      {
-        $match: { status: isActive },
-      },
-      {
-        $facet: {
-          stage1: [
-            {
-              $group: {
-                _id: null,
-                count: {
-                  $sum: 1,
-                },
-                data: {
-                  $push: {
-                    plot_no: "$plot_no",
-                    status: "$status",
-                    length: "$length",
-                    width: "$width",
-                    area: "$area",
-                    price: "$price",
-                  },
-                },
-              },
-            },
-          ],
-          stage2: [
-            {
-              $skip: skip,
-            },
-            {
-              $limit: per_page,
-            },
-          ],
-        },
-      },
-      {
-        $unwind: {
-          path: "$stage1",
-        },
-      },
-      {
-        $project: {
-          count: "$stage1.count",
-          data: { $concatArrays: ["$stage1.data", "$stage2"] },
-        },
-      },
-    ];
+    let query = [];
 
     if (match) {
-      query = [
-        {
-          $match: {
-            $or: [
-              { plot_no: { $regex: match, $options: "i" } },
-              { status: { $regex: match, $options: "i" } },
-            ],
-          },
+      query.push({
+        $match: {
+          $or: [
+            { plot_no: { $regex: match, $options: 'i' } },
+            { status: { $regex: match, $options: 'i' } },
+          ],
         },
-      ].concat(query);
+      });
     }
 
-    // Sort part
     if (sorton && sortdir) {
       const sort = {};
-      sort[sorton] = sortdir === "desc" ? -1 : 1;
-      query = [{ $sort: sort }].concat(query);
+      sort[sorton] = sortdir === 'desc' ? -1 : 1;
+      query.push({ $sort: sort });
     } else {
-      const sort = { plot_no: 1 }; // Update with your desired sort field
-      query = [{ $sort: sort }].concat(query);
+      const sort = { plot_no: 1 }; // Default sorting field
+      query.push({ $sort: sort });
     }
 
-    console.log("Final query:", JSON.stringify(query));
+    query.push({ $skip: skip }, { $limit: per_page });
 
-    const list = await plotdetail.aggregate(query);
+    const list = await PlotDetail.aggregate(query);
     res.json(list);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
@@ -177,5 +126,27 @@ const updatePlotDetail = async (req, res) => {
   }
 };
 
+const deletePlotDetail = async (req, res) => {
+  try {
+    const deletedPlotDetail = await PlotDetail.findByIdAndDelete(req.params._id);
+
+    if (!deletedPlotDetail) {
+      return res.status(404).json({ error: "Plot detail not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Plot detail deleted!",
+      deletedPlotDetail,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server Error.",
+      success: false,
+    });
+  }
+};
+
 // Export the router
-module.exports = {createPlotDetail,getPlotDetailById,getActivePlots,getPlotDetails,updatePlotDetail,listPlotDetails};
+module.exports = {createPlotDetail,getPlotDetailById,getActivePlots,deletePlotDetail,getPlotDetails,updatePlotDetail,listPlotDetails};
