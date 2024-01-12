@@ -1,37 +1,33 @@
-const  SuncityInquries  = require( "../models/inquries.js");
+const SuncityInquries = require("../models/inquries.js");
 
 const listInquiries = async (req, res) => {
   try {
-    const { skip = 0, per_page = 10, sorton = 'createdAt', sortdir = 'asc', match } = req.body;
+    const { skip = 0, per_page = 10, sorton = 'createdAt', sortdir = 'desc', match } = req.body;
 
     let query = [];
 
-    // Build the match query if provided
     if (match) {
       query.push({
         $match: {
           $or: [
             { InquiryName: { $regex: match, $options: 'i' } },
             { InquiryMail: { $regex: match, $options: 'i' } },
-            { InquiryMobile: match },
-            { InquiryPlotnumber: match },
-            { status: { $regex: match, $options: 'i' } },
+            { InquiryMobile: { $regex: match, $options: 'i' } },
+            { InquiryPlotnumber: { $regex: match, $options: 'i' } },
+            { status: { $regex: match, $options: 'i' } }
           ],
         },
       });
     }
 
-    // Add sorting to the query
     const sort = {};
     sort[sorton] = sortdir === 'desc' ? -1 : 1;
     query.push({ $sort: sort });
 
-    // Add pagination to the query
-    query.push({ $skip: Number(skip) }, { $limit: Number(per_page) });
+    query.push({ $skip: parseInt(skip) }, { $limit: parseInt(per_page) });
 
-    // Execute the query
-    const inquiries = await SuncityInquries.find();
-    res.json(inquiries);
+    const list = await SuncityInquries.aggregate(query);
+    res.json(list);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
