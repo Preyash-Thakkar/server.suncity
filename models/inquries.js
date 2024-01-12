@@ -10,17 +10,20 @@ const schema = new mongoose.Schema(
       type: String,
       // required: true,
     },
-    InquiryMobile:{
+    InquiryMobile: {
       type: Number,
-
     },
     InquiryPlotnumber: {
       type: Number,
       // required: true,
     },
-    
+    status: {
+      type: String,
+      enum: ['pending', 'attended'],
+      default: 'pending'
+    },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("SuncityInquries", schema);
+module.exports = mongoose.model("SuncityInquiries", schema);
