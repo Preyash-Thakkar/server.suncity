@@ -1,4 +1,4 @@
-const PlotDetail = require("../models/plotdetail"); // Replace with the actual model
+const PlotDetail = require("../models/plotdetail");
 
 const createPlotDetail = async (req, res) => {
   try {
@@ -14,13 +14,52 @@ const createPlotDetail = async (req, res) => {
     const plotDetail = await PlotDetail.create(req.body);
     res.status(200).json({
       isOk: true,
-      data: plotDetail,
+      data: plotDetail, // Include the created plot detail in the 'data' property
     });
   } catch (error) {
     console.error("Error from create plot detail", error);
     return res.status(400).send("Create plot detail failed");
   }
 };
+
+
+const listPlotDetails = async (req, res) => {
+  try {
+    const { skip, per_page, sorton, sortdir, match, isActive } = req.body;
+
+    let query = [];
+
+    if (match) {
+      query.push({
+        $match: {
+          $or: [
+            { plot_no: { $regex: match, $options: 'i' } },
+            { status: { $regex: match, $options: 'i' } },
+          ],
+        },
+      });
+    }
+
+    if (sorton && sortdir) {
+      const sort = {};
+      sort[sorton] = sortdir === 'desc' ? -1 : 1;
+      query.push({ $sort: sort });
+    } else {
+      const sort = { plot_no: 1 }; // Default sorting field
+      query.push({ $sort: sort });
+    }
+
+    query.push({ $skip: skip }, { $limit: per_page });
+
+    const list = await PlotDetail.aggregate(query);
+    res.json(list);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
 
 const getPlotDetailById = async (req, res) => {
   try {
@@ -87,5 +126,27 @@ const updatePlotDetail = async (req, res) => {
   }
 };
 
+const deletePlotDetail = async (req, res) => {
+  try {
+    const deletedPlotDetail = await PlotDetail.findByIdAndDelete(req.params._id);
+
+    if (!deletedPlotDetail) {
+      return res.status(404).json({ error: "Plot detail not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Plot detail deleted!",
+      deletedPlotDetail,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server Error.",
+      success: false,
+    });
+  }
+};
+
 // Export the router
-module.exports = {createPlotDetail,getPlotDetailById,getActivePlots,getPlotDetails,updatePlotDetail};
+module.exports = {createPlotDetail,getPlotDetailById,getActivePlots,deletePlotDetail,getPlotDetails,updatePlotDetail,listPlotDetails};
