@@ -1,55 +1,73 @@
-var nodemailer = require("nodemailer");
-const path = require("path");
-require("dotenv").config();
+const nodemailer = require("nodemailer");
+// const {SuncityInquiries} = require("../models/inquries");
+const  SuncityInquries  = require( "../models/inquries.js");
 
-const ContactUs = require("../models/inquries");
-
-exports.CreateSendContactUs = async (req, res) => {
+const submitForm = async (req, res) => {
+  const { name, email, mobile, plotNumber } = req.body;
+  
   try {
-    const { InquiryName, InquiryMail, InquirySubject  } = req.body;
-    console.log(InquiryName, InquiryMail, InquirySubject );
-    const addContactUs = await new ContactUs({
-      InquiryName,
-      InquiryMail,
-      InquirySubject,
-      
-    }).save();
-
-    res.json(addContactUs);
-
-    const transporter = nodemailer.createTransport({
-      // host: "mail.anaxanet.com",
-      host: "mail.marwiz.in",
-      port: 587,
-      secureConnection: false,
-      auth: {
-        user: "contact@marwiz.in",
-        // pass: "ConM@2022#",
-        pass: "CTmar@009#2023",
-      },
-      tls: {
-        ciphers: "SSLv3",
-        rejectUnauthorized: false,
-      },
+    await SuncityInquries.create({
+      InquiryName: name,
+      InquiryMail: email,
+      InquiryMobile: mobile,
+      InquiryPlotnumber: plotNumber,
     });
-
-    // Setup email data
-    const mailOptions = {
-      from: "contact@marwiz.in",
-      to: InquiryMail, // Replace with recipient's email address
-      subject: InquirySubject,
-      text: `${InquiryName} has to inquire for: ${InquirySubject}`,
-    };
-
-    // Send email
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log("Error:", error);
-      } else {
-        console.log("Email sent:", info.response);
-      }
-    });
-  } catch (err) {
-    return res.status(400).send(err);
+    console.log("Form details saved to MongoDB");
+  } catch (error) {
+    console.error("Error saving form details to MongoDB:", error);
+    res.status(500).send("Internal Server Error");
+    return;
   }
+
+  // Respond immediately to the client
+  res.status(200).send("Form received, processing...");
+
+  // Process email sending in the background
+  sendEmail(name, email, mobile, plotNumber);
+};
+
+const sendEmail = (name, email, mobile, plotNumber) => {
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "marwiz.tech@gmail.com",
+      pass: "abuoxineboamaqkm",
+    },
+  });
+
+  const mailOptions = {
+    from: email,
+    to: "pateldhruvit0712@gmail.com",
+    subject: "New form submission",
+    text: `Name: ${name}\nPhone: ${mobile}\nEmail: ${email}\nPlot-Number:${plotNumber}`,
+  };
+
+  const mailOptionsToUser = {
+    from: "pateldhruvit0712@gmail.com",
+    to: email,
+    subject: "Thank You for Your Inquiry",
+    text: `Hello ${name},\n\nThank you for your inquiry about Plot Number ${plotNumber}. We will get back to you soon.\n\nBest regards,\nSuncity pvt LTD`,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending email:", error);
+    } else {
+      console.log("Email sent: " + info.response);
+    }
+  });
+
+  transporter.sendMail(mailOptionsToUser, (error, info) => {
+    if (error) {
+      console.error("Error sending thank you email to user:", error);
+    } else {
+      console.log("Thank you email sent to user: " + info.response);
+    }
+  });
+};
+
+module.exports = {
+  submitForm,
 };

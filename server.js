@@ -43,7 +43,7 @@ app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("files"));
-
+app.use(express.json());
 //routes
 // app.use("/api", authRoutes);
 fs.readdirSync("./routes").map((r) =>
