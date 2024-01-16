@@ -1,25 +1,21 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const SuncityLoginHistorySchema = new mongoose.Schema(
-  { 
-    Login: {          //company users id
+const LoginHistorySchema = new mongoose.Schema(
+  {
+    adminId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Admin',
+    },
+    loginName: {
       type: String,
       required: true,
     },
-    LoginName: {
+    loginFromIP: {
       type: String,
       required: true,
-    },
-    LoginFromIP: {
-      type: String,
-      required: true,
-    },
-    IsActive: {
-      type: Boolean,
-      default: true,
     },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("LoginHistory", SuncityLoginHistorySchema);
+module.exports = mongoose.model('LoginHistory', LoginHistorySchema);

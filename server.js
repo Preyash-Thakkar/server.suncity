@@ -123,7 +123,8 @@ app.use(async (err, req, res, next) => {
     data: filedata,
   });
 });
-
+const passport = require('passport');
+// const cors = require('cors');
 const port = process.env.PORT || 8000;
 
 app.listen(port, () => {

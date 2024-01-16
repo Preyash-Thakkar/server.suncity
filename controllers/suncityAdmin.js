@@ -1,4 +1,7 @@
+// controllers/suncityAdmin.js
+const passport = require('passport');
 const Admin = require('../models/suncityAdmin');
+const LoginHistory = require('../models/loginhistory');
 
 const createAdmin = async (req, res) => {
   try {
@@ -22,7 +25,6 @@ const createAdmin = async (req, res) => {
 const getAllAdmins = async (req, res) => {
   try {
     const admins = await Admin.find({}, '-password');
-
     return res.status(200).json({ success: true, data: admins });
   } catch (error) {
     console.error(error);
@@ -30,5 +32,31 @@ const getAllAdmins = async (req, res) => {
   }
 };
 
-module.exports = { createAdmin, getAllAdmins };
+const loginAdmin = (req, res, next) => {
+  passport.authenticate('local', async (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
 
+    // Log the admin login history
+    const loginHistory = new LoginHistory({
+      adminId: user._id,
+      loginName: user.email,
+      loginFromIP: req.ip, // Assuming req.ip provides the client's IP address
+    });
+    await loginHistory.save();
+
+    // Continue with the authentication process
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.json({ success: true, message: 'Login successful', user });
+    });
+  })(req, res, next);
+};
+
+module.exports = { createAdmin, getAllAdmins, loginAdmin };
