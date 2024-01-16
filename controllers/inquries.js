@@ -26,6 +26,65 @@ const submitForm = async (req, res) => {
   sendEmail(name, email, mobile, plotNumber);
 };
 
+const deleteInquiry = async (req, res) => {
+  try {
+    const deletedInquiry = await SuncityInquries.findByIdAndDelete(req.params._id);
+
+    if (!deletedInquiry) {
+      return res.status(404).json({
+        success: false,
+        message: "Inquiry not found",
+        error: "Inquiry not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Inquiry deleted!",
+      deletedInquiry,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+      error: error.message,
+    });
+  }
+};
+
+const editInquiryStatus = async (req, res) => {
+  try {
+    const updatedInquiry = await SuncityInquries.findByIdAndUpdate(
+      req.params._id,
+      { $set: { status: 'attended' } },
+      { new: true }
+    );
+
+    if (!updatedInquiry) {
+      return res.status(404).json({
+        success: false,
+        message: "Inquiry not found",
+        error: "Inquiry not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Inquiry status updated to attended",
+      updatedInquiry,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+      error: error.message,
+    });
+  }
+};
+
+
 const sendEmail = (name, email, mobile, plotNumber) => {
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -69,5 +128,5 @@ const sendEmail = (name, email, mobile, plotNumber) => {
 };
 
 module.exports = {
-  submitForm,
+  submitForm,deleteInquiry,editInquiryStatus
 };
