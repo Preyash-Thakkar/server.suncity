@@ -107,7 +107,9 @@ const sendEmail = (name, email, mobile, plotNumber) => {
     from: "pateldhruvit0712@gmail.com",
     to: email,
     subject: "Thank You for Your Inquiry",
-    text: `Hello ${name},\n\nThank you for your inquiry about Plot Number ${plotNumber}. We will get back to you soon.\n\nBest regards,\nSuncity pvt LTD`,
+    text: `Hello ${name},\n\nThank you for your interest in Plot No.${plotNumber} at Suncity Industrial Park\nWe are currently compiling detailed information about the plot,\nincluding specifications, pricing, and terms.
+    \nWe will get back to you soon with all the necessary details.\nIn the meantime, if you have any questions or need further assistance,\nplease feel free to contact us.
+    \n\nBest regards,\nSuncity pvt LTD\nContact Us`,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {

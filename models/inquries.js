@@ -12,7 +12,7 @@ const schema = new mongoose.Schema(
       type: Number,
     },
     InquiryPlotnumber: {
-      type: Number,
+      type: String,
     },
     status: {
       type: String,
