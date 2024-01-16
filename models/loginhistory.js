@@ -1,11 +1,8 @@
-const mongoose = require("mongoose");
+// models/LoginHistory.js
+const mongoose = require('mongoose');
 
-const SuncityLoginHistorySchema = new mongoose.Schema(
-  { 
-    Login: {          //company users id
-      type: String,
-      required: true,
-    },
+const loginHistorySchema = new mongoose.Schema(
+  {
     LoginName: {
       type: String,
       required: true,
@@ -14,12 +11,8 @@ const SuncityLoginHistorySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    IsActive: {
-      type: Boolean,
-      default: true,
-    },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("LoginHistory", SuncityLoginHistorySchema);
+module.exports = mongoose.model('LoginHistory', loginHistorySchema);
