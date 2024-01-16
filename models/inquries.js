@@ -4,26 +4,41 @@ const schema = new mongoose.Schema(
   {
     InquiryName: {
       type: String,
-      // required: true,
     },
     InquiryMail: {
       type: String,
-      // required: true,
     },
     InquiryMobile: {
       type: Number,
     },
     InquiryPlotnumber: {
       type: Number,
-      // required: true,
     },
     status: {
       type: String,
       enum: ['pending', 'attended'],
       default: 'pending'
     },
+    plot_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Suncityplotdetails',
+    },
   },
   { timestamps: true }
 );
+
+// Pre-save hook to populate plot_id based on InquiryPlotnumber
+schema.pre('save', async function (next) {
+  try {
+    const plotDetails = await mongoose.model('Suncityplotdetails').findOne({ plot_no: this.InquiryPlotnumber });
+
+    if (plotDetails) {
+      this.plot_id = plotDetails._id;
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = mongoose.model("SuncityInquries", schema);
