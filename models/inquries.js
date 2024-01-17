@@ -23,6 +23,9 @@ const schema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Suncityplotdetails',
     },
+    marketExecutive: {
+      type: String, // You can change the type according to your requirements
+    },
   },
   { timestamps: true }
 );
