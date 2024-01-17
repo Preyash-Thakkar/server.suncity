@@ -7,7 +7,7 @@ const Suncityplotdetails = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['available', 'sold', 'reserved', 'active'], // Include 'active' in the enum
+    enum: ['available', 'sold', 'reserved', 'active'],
   },
   Length: {
     type: Number,
@@ -20,6 +20,9 @@ const Suncityplotdetails = new mongoose.Schema({
   },
   price: {
     type: Number,
+  },
+  remarks: {
+    type: String, // or choose an appropriate type based on your needs
   },
 });
 
