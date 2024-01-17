@@ -1,23 +1,23 @@
 const jwt = require('jsonwebtoken');
 // const cookieParser = require('cookie-parser');
-const Admin = require('../models/suncityAdmin');
+const MarketExecutive = require('../models/MarketExecutive');
 
 
 const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const admin = await Admin.findOne({ email });
+    const excecutive = await MarketExecutive.findOne({ email });
     // console.log("Models password", admin.password);
     // console.log("Req password", password);
-    console.log(admin)
-    if (!admin || admin.password !== password) {
+    console.log(excecutive )
+    if (!excecutive  || excecutive .password !== password) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
     
 
 
-    const token = jwt.sign({ userId: admin._id }, 'your-secret-key', { expiresIn: '1h' });
+    const token = jwt.sign({ userId: excecutive._id }, 'your-secret-key', { expiresIn: '1h' });
 
     res.cookie('token', token, { httpOnly: true });
 
