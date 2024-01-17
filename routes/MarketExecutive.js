@@ -18,9 +18,9 @@ router.post("/marketExecutive/list", listMarketExecutives);
 router.get("/marketExecutive/:id", getMarketExecutiveById);
 
 // Update Market Executive by ID
-router.put("/marketExecutive/:id", updateMarketExecutive);
+router.put("/marketExecutive/update/:_id", updateMarketExecutive);
 
 // Delete Market Executive by ID
-router.delete("/marketExecutive/:id", deleteMarketExecutive);
+router.delete("/marketExecutive/:_id", deleteMarketExecutive);
 
 module.exports = router;
