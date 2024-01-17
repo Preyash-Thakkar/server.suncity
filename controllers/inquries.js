@@ -3,14 +3,15 @@ const nodemailer = require("nodemailer");
 const  SuncityInquries  = require( "../models/inquries.js");
 
 const submitForm = async (req, res) => {
-  const { name, email, mobile, plotNumber } = req.body;
-  
+  const { name, email, mobile, plotNumber, marketExecutive } = req.body;
+
   try {
     await SuncityInquries.create({
       InquiryName: name,
       InquiryMail: email,
       InquiryMobile: mobile,
       InquiryPlotnumber: plotNumber,
+      marketExecutive: marketExecutive, // Include the marketExecutive field here
     });
     console.log("Form details saved to MongoDB");
   } catch (error) {
@@ -25,6 +26,7 @@ const submitForm = async (req, res) => {
   // Process email sending in the background
   sendEmail(name, email, mobile, plotNumber);
 };
+
 
 const deleteInquiry = async (req, res) => {
   try {

@@ -14,7 +14,8 @@ const listInquiries = async (req, res) => {
             { InquiryMail: { $regex: match, $options: 'i' } },
             { InquiryMobile: { $regex: match, $options: 'i' } },
             { InquiryPlotnumber: { $regex: match, $options: 'i' } },
-            { status: { $regex: match, $options: 'i' } }
+            { status: { $regex: match, $options: 'i' } },
+            { marketExecutive: { $regex: match, $options: 'i' } }, // Include marketExecutive in the $or condition
           ],
         },
       });
@@ -35,3 +36,4 @@ const listInquiries = async (req, res) => {
 };
 
 module.exports = { listInquiries };
+

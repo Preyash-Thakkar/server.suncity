@@ -11,17 +11,20 @@ const createPlotDetail = async (req, res) => {
       });
     }
 
-    const plotDetail = await PlotDetail.create(req.body);
+    // Include 'remarks' in the req.body if it's part of the data you receive
+    const plotDetail = await PlotDetail.create({
+      ...req.body,
+      remarks: req.body.remarks, // Include 'remarks' field here
+    });
     res.status(200).json({
       isOk: true,
-      data: plotDetail, // Include the created plot detail in the 'data' property
+      data: plotDetail,
     });
   } catch (error) {
     console.error("Error from create plot detail", error);
     return res.status(400).send("Create plot detail failed");
   }
 };
-
 
 const listPlotDetails = async (req, res) => {
   try {
@@ -35,6 +38,7 @@ const listPlotDetails = async (req, res) => {
           $or: [
             { plot_no: { $regex: match, $options: 'i' } },
             { status: { $regex: match, $options: 'i' } },
+            { remarks: { $regex: match, $options: 'i' } }, // Include 'remarks' in the $or condition
           ],
         },
       });
@@ -59,6 +63,31 @@ const listPlotDetails = async (req, res) => {
   }
 };
 
+const updatePlotDetail = async (req, res) => {
+  try {
+    const updatedPlotDetail = await PlotDetail.findByIdAndUpdate(
+      req.params._id,
+      { ...req.body, remarks: req.body.remarks }, // Include 'remarks' field here
+      { new: true }
+    );
+    
+    if (!updatedPlotDetail) {
+      return res.status(404).json({ error: "Plot detail not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Plot detail updated!",
+      updatedPlotDetail,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server Error.",
+      success: false,
+    });
+  }
+};
 
 
 const getPlotDetailById = async (req, res) => {
@@ -95,32 +124,6 @@ const getPlotDetails = async (req, res) => {
     console.error(error);
     return res.status(500).json({
       message: "Failed to fetch plot details",
-      success: false,
-    });
-  }
-};
-
-const updatePlotDetail = async (req, res) => {
-  try {
-    const updatedPlotDetail = await PlotDetail.findByIdAndUpdate(
-      req.params._id,
-      req.body,
-      { new: true }
-    );
-    
-    if (!updatedPlotDetail) {
-      return res.status(404).json({ error: "Plot detail not found" });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Plot detail updated!",
-      updatedPlotDetail,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      message: "Internal Server Error.",
       success: false,
     });
   }
