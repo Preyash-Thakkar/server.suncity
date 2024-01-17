@@ -2,30 +2,21 @@ const SuncityInquries = require("../models/inquries.js");
 
 const listMEInquiries = async (req, res) => {
   try {
-    const { skip = 0, per_page = 10, sorton = 'createdAt', sortdir = 'desc', match, marketExecutive } = req.body;
+    const { skip = 0, per_page = 10, sorton = 'createdAt', sortdir = 'desc', match } = req.query;
+    const loggedInEmail = req.body.email;
+    console.log("email",loggedInEmail);
 
-    let query = [];
-
-    // Add a $match stage to filter by marketExecutive
-    if (marketExecutive) {
-      query.push({
-        $match: {
-          marketExecutive: { $regex: marketExecutive, $options: 'i' },
-        },
-      });
+    if (!loggedInEmail) {
+      return res.status(400).json({ success: false, message: 'User email not provided' });
     }
 
-    // Fetch the executive email from local storage
-    const executiveEmail = localStorage.getItem("MarketExSuncityUser");
-
-    // Add a $match stage to filter by executiveEmail
-    if (executiveEmail) {
-      query.push({
+    let query = [
+      {
         $match: {
-          excecutiveEmail: { $eq: executiveEmail },
+          excecutiveEmail: loggedInEmail,
         },
-      });
-    }
+      },
+    ];
 
     if (match) {
       query.push({
@@ -35,7 +26,7 @@ const listMEInquiries = async (req, res) => {
             { InquiryMail: { $regex: match, $options: 'i' } },
             { InquiryMobile: { $regex: match, $options: 'i' } },
             { InquiryPlotnumber: { $regex: match, $options: 'i' } },
-            { status: { $regex: match, $options: 'i' } }
+            { status: { $regex: match, $options: 'i' } },
           ],
         },
       });
@@ -54,5 +45,8 @@ const listMEInquiries = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+module.exports = { listMEInquiries };
+
 
 module.exports = { listMEInquiries };
