@@ -23,7 +23,7 @@ const schema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Suncityplotdetails',
     },
-    marketExecutive: {
+    excecutiveEmail: {
       type: String, // You can change the type according to your requirements
     },
   },
