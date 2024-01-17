@@ -15,6 +15,18 @@ const listMEInquiries = async (req, res) => {
       });
     }
 
+    // Fetch the executive email from local storage
+    const executiveEmail = localStorage.getItem("MarketExSuncityUser");
+
+    // Add a $match stage to filter by executiveEmail
+    if (executiveEmail) {
+      query.push({
+        $match: {
+          excecutiveEmail: { $eq: executiveEmail },
+        },
+      });
+    }
+
     if (match) {
       query.push({
         $match: {
@@ -42,5 +54,8 @@ const listMEInquiries = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+module.exports = { listMEInquiries };
+
 
 module.exports = { listMEInquiries };
