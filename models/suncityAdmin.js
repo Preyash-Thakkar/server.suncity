@@ -5,16 +5,16 @@ const SuncityadminSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true,
-    lowercase: true,
+    
   },
   password: {
     type: String,
     required: true,
-    minlength: 6, // Set a minimum password length
+    minlength: 1, // Set a minimum password length
   },
 });
 
 const Admin = mongoose.model('Admin', SuncityadminSchema);
 
 module.exports = Admin;
+ 
