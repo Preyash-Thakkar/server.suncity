@@ -1,7 +1,7 @@
 // controllers/loginController.js
 const LoginHistory = require('../models/loginhistory');
 
-const logLoginHistory = async (email, ipAddress) => {
+const LoginHistory = async (email, ipAddress) => {
   try {
     const loginHistory = new LoginHistory({
       LoginName: email,
@@ -13,4 +13,4 @@ const logLoginHistory = async (email, ipAddress) => {
   }
 };
 
-module.exports = { logLoginHistory };
+module.exports = { LoginHistory };
