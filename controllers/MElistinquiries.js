@@ -2,9 +2,8 @@ const SuncityInquries = require("../models/inquries.js");
 
 const listMEInquiries = async (req, res) => {
   try {
-    const { skip = 0, per_page = 10, sorton = 'createdAt', sortdir = 'desc', match } = req.query;
+    const { skip = 0, per_page = 10, sorton = 'createdAt', sortdir = 'desc', match, status } = req.body;
     const loggedInEmail = req.body.email;
-    console.log("email",loggedInEmail);
 
     if (!loggedInEmail) {
       return res.status(400).json({ success: false, message: 'User email not provided' });
@@ -32,6 +31,15 @@ const listMEInquiries = async (req, res) => {
       });
     }
 
+    // Adjust the status query based on the provided status parameter
+    if (status && status !== "") {
+      query.push({
+        $match: {
+          status: status,
+        },
+      });
+    }
+
     const sort = {};
     sort[sorton] = sortdir === 'desc' ? -1 : 1;
     query.push({ $sort: sort });
@@ -45,8 +53,5 @@ const listMEInquiries = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-
-module.exports = { listMEInquiries };
-
 
 module.exports = { listMEInquiries };

@@ -8,6 +8,7 @@ const listInquiries = async (req, res) => {
       sorton = "createdAt",
       sortdir = "desc",
       match,
+      status, // Include the status field from the request
     } = req.body;
 
     let query = [];
@@ -21,8 +22,17 @@ const listInquiries = async (req, res) => {
             { InquiryMobile: { $regex: match, $options: "i" } },
             { InquiryPlotnumber: { $regex: match, $options: "i" } },
             { status: { $regex: match, $options: "i" } },
-            { excecutiveEmail: { $regex: match, $options: "i" } }, // Include marketExecutive in the $or condition
+            { excecutiveEmail: { $regex: match, $options: "i" } },
           ],
+        },
+      });
+    }
+
+    // Adjust the status query based on the provided status parameter
+    if (status && status !== "") {
+      query.push({
+        $match: {
+          status: status,
         },
       });
     }
@@ -40,5 +50,6 @@ const listInquiries = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 module.exports = { listInquiries };
