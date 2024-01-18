@@ -57,13 +57,9 @@ const deleteInquiry = async (req, res) => {
 
 const editInquiryStatus = async (req, res) => {
   try {
-    const updatedInquiry = await SuncityInquries.findByIdAndUpdate(
-      req.params._id,
-      { $set: { status: 'attended' } },
-      { new: true }
-    );
+    const inquiry = await SuncityInquries.findById(req.params._id);
 
-    if (!updatedInquiry) {
+    if (!inquiry) {
       return res.status(404).json({
         success: false,
         message: "Inquiry not found",
@@ -71,9 +67,18 @@ const editInquiryStatus = async (req, res) => {
       });
     }
 
+    // Toggle the status between "attended" and "pending"
+    const newStatus = inquiry.status === "attended" ? "pending" : "attended";
+
+    const updatedInquiry = await SuncityInquries.findByIdAndUpdate(
+      req.params._id,
+      { $set: { status: newStatus } },
+      { new: true }
+    );
+
     res.status(200).json({
       success: true,
-      message: "Inquiry status updated to attended",
+      message: `Inquiry status updated to ${newStatus}`,
       updatedInquiry,
     });
   } catch (error) {
@@ -85,6 +90,7 @@ const editInquiryStatus = async (req, res) => {
     });
   }
 };
+
 
 
 const sendEmail = (name, email, mobile, plotNumber) => {
