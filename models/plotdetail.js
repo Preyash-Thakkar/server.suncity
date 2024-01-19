@@ -24,6 +24,8 @@ const Suncityplotdetails = new mongoose.Schema({
   remarks: {
     type: String, // or choose an appropriate type based on your needs
   },
-});
+},
+{ timestamps: true }
+);
 
 module.exports = mongoose.model("Suncityplotdetails", Suncityplotdetails);
