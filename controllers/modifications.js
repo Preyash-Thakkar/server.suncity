@@ -30,33 +30,36 @@ const listPlotDetails = async (req, res) => {
   try {
     const { skip, per_page, sorton, sortdir, match, isActive } = req.body;
 
-    let query = [];
+    console.log("skip:", skip);
+    console.log("per_page:", per_page);
+    console.log("sorton:", sorton);
+    console.log("sortdir:", sortdir);
+
+    let query = {};
 
     if (match) {
-      query.push({
-        $match: {
-          $or: [
-            { plot_no: { $regex: match, $options: 'i' } },
-            { status: { $regex: match, $options: 'i' } },
-            { remarks: { $regex: match, $options: 'i' } }, // Include 'remarks' in the $or condition
-          ],
-        },
-      });
+      query.$or = [
+        { plot_no: { $regex: match, $options: 'i' } },
+        { status: { $regex: match, $options: 'i' } },
+        { remarks: { $regex: match, $options: 'i' } },
+      ];
     }
 
-    if (sorton && sortdir) {
-      const sort = {};
-      sort[sorton] = sortdir === 'desc' ? -1 : 1;
-      query.push({ $sort: sort });
-    } else {
-      const sort = { plot_no: 1 }; // Default sorting field
-      query.push({ $sort: sort });
-    }
+    // Calculate the total count without applying skip and limit
+    const totalCount = await PlotDetail.countDocuments(query);
 
-    query.push({ $skip: skip }, { $limit: per_page });
+    console.log("Total Count:", totalCount);
 
-    const list = await PlotDetail.aggregate(query);
-    res.json(list);
+    // Apply skip and limit stages within the query
+    const list = await PlotDetail.find(query)
+      .sort(sorton && sortdir ? { [sorton]: sortdir === 'desc' ? -1 : 1 } : {})
+      .skip(skip)
+      //.limit(per_page)
+      .exec();
+
+    console.log("Data length:", list.length);
+
+    res.json({ data: list, total: totalCount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });

@@ -3,18 +3,23 @@ const SuncityInquries = require("../models/inquries.js");
 const listInquiries = async (req, res) => {
   try {
     const {
-      skip = 0,
-      per_page = 10,
-      sorton = "createdAt",
-      sortdir = "desc",
+      skip,
+      per_page,
+      sorton,
+      sortdir,
       match,
-      status, // Include the status field from the request
+      status,
     } = req.body;
 
-    let query = [];
+    console.log("skip:", skip);
+    console.log("per_page:", per_page);
+    console.log("sorton:", sorton);
+    console.log("sortdir:", sortdir);
+
+    let pipeline = [];
 
     if (match) {
-      query.push({
+      pipeline.push({
         $match: {
           $or: [
             { InquiryName: { $regex: match, $options: "i" } },
@@ -28,28 +33,36 @@ const listInquiries = async (req, res) => {
       });
     }
 
-    // Adjust the status query based on the provided status parameter
     if (status && status !== "") {
-      query.push({
+      pipeline.push({
         $match: {
           status: status,
         },
       });
     }
 
-    const sort = {};
-    sort[sorton] = sortdir === "desc" ? -1 : 1;
-    query.push({ $sort: sort });
+    // Calculate the total count without applying skip and limit
+    const totalCountPipeline = [...pipeline];
+    totalCountPipeline.push({ $count: "count" });
+    const [totalCountResult] = await SuncityInquries.aggregate(totalCountPipeline);
+    const totalCount = totalCountResult ? totalCountResult.count : 0;
 
-    query.push({ $skip: parseInt(skip) }, { $limit: parseInt(per_page) });
+    console.log("Total Count:", totalCount);
 
-    const list = await SuncityInquries.aggregate(query);
-    res.json(list);
+    // Apply skip and limit stages within the query
+    pipeline.push({ $sort: { [sorton]: sortdir === "desc" ? -1 : 1 } });
+    pipeline.push({ $skip: parseInt(skip) });
+    //pipeline.push({ $limit: parseInt(per_page) });
+
+    const list = await SuncityInquries.aggregate(pipeline);
+
+    console.log("Data length:", list.length);
+
+    res.json({ data: list, total: totalCount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 module.exports = { listInquiries };
