@@ -2,7 +2,7 @@ const SuncityInquries = require("../models/inquries.js");
 
 const listMEInquiries = async (req, res) => {
   try {
-    const { skip = 0, per_page = 10, sorton = 'createdAt', sortdir = 'desc', match, status } = req.body;
+    const { skip, per_page , sorton, sortdir, match, status } = req.body;
     const loggedInEmail = req.body.email;
 
     if (!loggedInEmail) {
@@ -47,6 +47,7 @@ const listMEInquiries = async (req, res) => {
     query.push({ $skip: parseInt(skip) }, { $limit: parseInt(per_page) });
 
     const list = await SuncityInquries.aggregate(query);
+    console.log("length of the inquiries",list.length);
     res.json(list);
   } catch (error) {
     console.error(error);
