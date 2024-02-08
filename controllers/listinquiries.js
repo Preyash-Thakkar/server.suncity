@@ -65,4 +65,37 @@ const listInquiries = async (req, res) => {
   }
 };
 
-module.exports = { listInquiries };
+const getInquiriesByPlotNumber = async (req, res) => {
+  try {
+    // Extract plot number from query parameters
+    const plotNumber = req.query.plotNumber;
+    console.log("plot",plotNumber)
+
+    // Check if plotNumber is provided
+    if (!plotNumber) {
+      return res.status(400).json({ error: "Plot number is required" });
+    }
+
+    // Find the inquiry with the specified plot number
+    const inquiry = await SuncityInquries.find({ InquiryPlotnumber: plotNumber });
+
+    // If inquiry not found, return appropriate response
+    if (!inquiry) {
+      return res.status(404).json({ error: "Inquiry not found for plot number: " + plotNumber });
+    }
+
+    // Extract the details from the inquiry
+    // const { InquiryName, InquiryMail, InquiryMobile } = inquiry;
+
+    // Return the details
+    res.json( inquiry );
+  } catch (error) {
+    console.error("Error retrieving inquiry details:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+
+
+module.exports = { listInquiries , getInquiriesByPlotNumber };

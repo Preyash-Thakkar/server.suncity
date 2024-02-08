@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { listInquiries } = require("../controllers/listinquiries");
+const { listInquiries,getInquiriesByPlotNumber } = require("../controllers/listinquiries");
 
 router.post("/listinquiries", listInquiries);
+router.get("/listinquirybyplot",getInquiriesByPlotNumber)
 
 module.exports = router;

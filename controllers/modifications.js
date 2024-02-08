@@ -1,5 +1,6 @@
 const PlotDetail = require("../models/plotdetail");
 
+
 const createPlotDetail = async (req, res) => {
   try {
     const plotNoExists = await PlotDetail.findOne({ plot_no: req.body.plot_no });
@@ -12,10 +13,8 @@ const createPlotDetail = async (req, res) => {
     }
 
     // Include 'remarks' in the req.body if it's part of the data you receive
-    const plotDetail = await PlotDetail.create({
-      ...req.body,
-      remarks: req.body.remarks, // Include 'remarks' field here
-    });
+    const plotDetail = await PlotDetail.create(req.body);
+
     res.status(200).json({
       isOk: true,
       data: plotDetail,
@@ -25,6 +24,12 @@ const createPlotDetail = async (req, res) => {
     return res.status(400).send("Create plot detail failed");
   }
 };
+
+module.exports = { createPlotDetail };
+
+
+
+
 
 const listPlotDetails = async (req, res) => {
   try {
@@ -154,5 +159,53 @@ const deletePlotDetail = async (req, res) => {
   }
 };
 
+const listSoldProducts = async (req, res) => {
+  try {
+    const { skip, per_page, sorton, sortdir, match,status} = req.body;
+    console.log("skip",skip);
+    console.log("per-page",per_page);
+    console.log("sorton",sorton);
+    console.log("sortdir",sortdir);
+    console.log("match",match);
+
+    let query = [];
+
+    // Filter by status: 'sold'
+    query.push({
+      $match: { status: 'sold' }
+    });
+
+    if (match) {
+      query.push({
+        $match: {
+          $or: [
+            { name: { $regex: match, $options: 'i' } },
+            // Include other fields you want to search by in the $or condition
+          ],
+        },
+      });
+    }
+
+    if (sorton && sortdir) {
+      const sort = {};
+      sort[sorton] = sortdir === 'desc' ? -1 : 1;
+      query.push({ $sort: sort });
+    } else {
+      const sort = { name: 1 }; // Default sorting field
+      query.push({ $sort: sort });
+    }
+
+    query.push({ $skip: skip }, { $limit: per_page });
+
+    const list = await PlotDetail.aggregate(query);
+    console.log("list",list);
+    res.json(list);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+
 // Export the router
-module.exports = {createPlotDetail,getPlotDetailById,getActivePlots,deletePlotDetail,getPlotDetails,updatePlotDetail,listPlotDetails};
+module.exports = {createPlotDetail,listSoldProducts,getPlotDetailById,getActivePlots,deletePlotDetail,getPlotDetails,updatePlotDetail,listPlotDetails};

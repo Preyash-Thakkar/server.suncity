@@ -24,7 +24,8 @@ const login = async (req, res) => {
     console.log("execute name", excecutive.name);
     const idstored = excecutive._id;
     const executivename = excecutive.name;
-    res.status(200).json({ message: 'Login successful', token, idstored,executivename});
+    const executiveEmail = excecutive.email;
+    res.status(200).json({ message: 'Login successful', token, idstored,executivename,executiveEmail});
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
