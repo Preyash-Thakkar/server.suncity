@@ -33,9 +33,9 @@ module.exports = { createPlotDetail };
 
 const listPlotDetails = async (req, res) => {
   try {
-    const { skip, per_page, sorton, sortdir, match, isActive } = req.body;
+    const { page, per_page, sorton, sortdir, match, isActive } = req.body;
 
-    console.log("skip:", skip);
+    console.log("page:", page);
     console.log("per_page:", per_page);
     console.log("sorton:", sorton);
     console.log("sortdir:", sortdir);
@@ -55,11 +55,21 @@ const listPlotDetails = async (req, res) => {
 
     console.log("Total Count:", totalCount);
 
-    // Apply skip and limit stages within the query
+    // Apply sorting logic
+    let sort = {};
+    if (sorton && sortdir) {
+      sort[sorton] = sortdir === 'desc' ? -1 : 1;
+    } else {
+      sort["createdAt"] = -1; // Default sorting by createdAt if sorton and sortdir are not provided
+    }
+
+    // Calculate the skip value based on the page number and page size
+    const skip = (page - 1) * per_page;
+
+    // Find documents, apply sorting, and skip
     const list = await PlotDetail.find(query)
-      .sort(sorton && sortdir ? { [sorton]: sortdir === 'desc' ? -1 : 1 } : {})
+      .sort(sort)
       .skip(skip)
-      //.limit(per_page)
       .exec();
 
     console.log("Data length:", list.length);
@@ -70,6 +80,8 @@ const listPlotDetails = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+
 
 const updatePlotDetail = async (req, res) => {
   try {
@@ -161,12 +173,12 @@ const deletePlotDetail = async (req, res) => {
 
 const listSoldProducts = async (req, res) => {
   try {
-    const { skip, per_page, sorton, sortdir, match,status} = req.body;
-    console.log("skip",skip);
-    console.log("per-page",per_page);
-    console.log("sorton",sorton);
-    console.log("sortdir",sortdir);
-    console.log("match",match);
+    const { skip, per_page, sorton, sortdir, match, status } = req.body;
+    console.log("skip", skip);
+    console.log("per-page", per_page);
+    console.log("sorton", sorton);
+    console.log("sortdir", sortdir);
+    console.log("match", match);
 
     let query = [];
 
@@ -179,8 +191,11 @@ const listSoldProducts = async (req, res) => {
       query.push({
         $match: {
           $or: [
-            { name: { $regex: match, $options: 'i' } },
-            // Include other fields you want to search by in the $or condition
+            { plot_no: { $regex: match, $options: 'i' } },
+            { buyerName: { $regex: match, $options: 'i' } }, // Search in description
+            { buyerEmail: { $regex: match, $options: 'i' } },
+            { buyerMobileNo: { $regex: match, $options: 'i' } } // Search in category
+            // Add other fields as needed
           ],
         },
       });
@@ -198,13 +213,14 @@ const listSoldProducts = async (req, res) => {
     query.push({ $skip: skip }, { $limit: per_page });
 
     const list = await PlotDetail.aggregate(query);
-    console.log("list",list);
+    console.log("list", list);
     res.json(list);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
 
 
 // Export the router
